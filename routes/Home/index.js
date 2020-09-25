@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import { debounce } from 'lodash';
 import { global, fonts } from '../../style';
 import { SearchBar, Thumbnail, Loading, Error } from '../../components';
@@ -13,7 +13,7 @@ import { connect } from 'react-redux';
 import { fetchPopularMovies } from '../../redux/actions';
 
 const Home = (props: Props) => {
-  const list = useRef(null);
+  const list = useRef();
   const [searchInput, setSearchInput] = useState('');
   const [inputActive, setInputActive] = useState(false);
   useEffect(() => {
@@ -42,9 +42,7 @@ const Home = (props: Props) => {
 
   const fetchMorePages = (pageNumber) => {
     props.fetchPopularMovies(null, pageNumber + 1);
-    // list.current.scrollToEnd();
   };
-  // console.log(list.current.getItemLayout);
   const {
     popularMovies,
     isFetching,
@@ -56,6 +54,40 @@ const Home = (props: Props) => {
     return <Error />;
   }
   const imgUrlBase = 'https://image.tmdb.org/t/p/w500';
+
+  const renderItem = (item) => {
+    const thumbnailImage = item.poster_path
+      ? imgUrlBase + item.poster_path
+      : 'https://d994l96tlvogv.cloudfront.net/uploads/film/poster/poster-image-coming-soon-placeholder-no-logo-500-x-740_22729.png';
+    return (
+      <Thumbnail
+        key={item.poster_path}
+        imgUri={thumbnailImage}
+        onPress={() =>
+          props.navigation.navigate('Detail', { movieId: item.id })
+        }
+      />
+    );
+  };
+
+  const renderHeader = () => {
+    return (
+      <View style={styles.titleContainer}>
+        <Text style={[fonts.title]}>What's popular</Text>
+      </View>
+    );
+  };
+
+  const renderFooter = () => {
+    if (!isFetching) {
+      return null;
+    }
+    return (
+      <View style={styles.listLoad}>
+        <ActivityIndicator animating size="large" />
+      </View>
+    );
+  };
 
   return (
     <View style={[global.container, global.contentContainer]}>
@@ -77,31 +109,13 @@ const Home = (props: Props) => {
           showsVerticalScrollIndicator={false}
           onEndReachedThreshold={0}
           onEndReached={() => fetchMorePages(page)}
-          ListHeaderComponent={() => {
-            return (
-              <View style={styles.titleContainer}>
-                <Text style={[fonts.title]}>What's popular</Text>
-              </View>
-            );
-          }}
+          ListHeaderComponent={renderHeader()}
+          ListFooterComponent={renderFooter()}
           //TODO: check with Ilijan what is better
           // columnWrapperStyle={{ justifyContent: 'space-between' }}
           columnWrapperStyle={global.justifyCenter}
-          renderItem={({ item }) => {
-            const thumbnailImage = item.poster_path
-              ? imgUrlBase + item.poster_path
-              : 'https://d994l96tlvogv.cloudfront.net/uploads/film/poster/poster-image-coming-soon-placeholder-no-logo-500-x-740_22729.png';
-            return (
-              <Thumbnail
-                key={item.poster_path}
-                imgUri={thumbnailImage}
-                onPress={() =>
-                  props.navigation.navigate('Detail', { movieId: item.id })
-                }
-              />
-            );
-          }}
-          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => renderItem(item)}
+          keyExtractor={(item, index) => item.id + index}
           horizontal={false}
           numColumns={3}
         />

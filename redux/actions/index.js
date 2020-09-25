@@ -25,15 +25,15 @@ export const fetchingPopularMoviesFailure = (error) => ({
   payload: error,
 });
 
-export const fetchPopularMovies = (search, page = '1') => {
+export const fetchPopularMovies = (search, page = 1) => {
   return async (dispatch) => {
-    let enpoint = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`;
+    let endpoint = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`;
     if (search) {
-      enpoint = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&page=${page}&query=${search}`;
+      endpoint = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=en-US&page=${page}&query=${search}`;
     }
     dispatch(fetchingPopularMoviesRequest());
     try {
-      let response = await fetch(enpoint);
+      let response = await fetch(endpoint);
       let json = await response.json();
       dispatch(fetchingPopularMoviesSuccess(json.results, search, json.page));
     } catch (error) {

@@ -12,6 +12,7 @@ const initialState = {
 };
 
 const getData = (currentData, isSearch, payload) => {
+  console.log(isSearch);
   if (!isSearch) {
     return currentData.concat(payload);
     // return [{ ...currentData }, { ...payload }];
@@ -21,7 +22,11 @@ const getData = (currentData, isSearch, payload) => {
 };
 
 const popularMoviesReducer = (state = initialState, action) => {
-  const movieData = getData(state.popularMovies, action.search, action.payload);
+  const movieData = getData(
+    state.popularMovies,
+    action.isSearched,
+    action.payload,
+  );
   switch (action.type) {
     case FETCHING_POPULAR_MOVIES_REQUEST:
       return {
