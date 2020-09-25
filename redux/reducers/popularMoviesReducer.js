@@ -11,12 +11,14 @@ const initialState = {
   page: 1,
 };
 
-const getData = (currentData, isSearch, payload) => {
-  console.log(isSearch);
-  if (!isSearch) {
+const getData = (currentData, isSearch, payload, page, reset) => {
+  if (!isSearch && !reset) {
     return currentData.concat(payload);
-    // return [{ ...currentData }, { ...payload }];
-  } else {
+  } else if (page === 1 && isSearch) {
+    return payload;
+  } else if (page !== 1 && isSearch) {
+    return currentData.concat(payload);
+  } else if (reset) {
     return payload;
   }
 };
@@ -26,6 +28,8 @@ const popularMoviesReducer = (state = initialState, action) => {
     state.popularMovies,
     action.isSearched,
     action.payload,
+    action.page,
+    action.reset,
   );
   switch (action.type) {
     case FETCHING_POPULAR_MOVIES_REQUEST:

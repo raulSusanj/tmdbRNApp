@@ -14,18 +14,19 @@ import {
 export const fetchingPopularMoviesRequest = () => ({
   type: FETCHING_POPULAR_MOVIES_REQUEST,
 });
-export const fetchingPopularMoviesSuccess = (json, search, page) => ({
+export const fetchingPopularMoviesSuccess = (json, search, page, reset) => ({
   type: FETCHING_POPULAR_MOVIES_SUCCESS,
   payload: json,
   isSearched: search ? true : false,
   page: page,
+  reset: reset,
 });
 export const fetchingPopularMoviesFailure = (error) => ({
   type: FETCHING_POPULAR_MOVIES_FAILURE,
   payload: error,
 });
 
-export const fetchPopularMovies = (search, page = 1) => {
+export const fetchPopularMovies = (search, page = 1, reset) => {
   return async (dispatch) => {
     let endpoint = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=en-US&page=${page}`;
     if (search) {
@@ -35,7 +36,9 @@ export const fetchPopularMovies = (search, page = 1) => {
     try {
       let response = await fetch(endpoint);
       let json = await response.json();
-      dispatch(fetchingPopularMoviesSuccess(json.results, search, json.page));
+      dispatch(
+        fetchingPopularMoviesSuccess(json.results, search, json.page, reset),
+      );
     } catch (error) {
       dispatch(fetchingPopularMoviesFailure(error));
     }

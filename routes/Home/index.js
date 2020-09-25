@@ -16,6 +16,7 @@ const Home = (props: Props) => {
   const list = useRef();
   const [searchInput, setSearchInput] = useState('');
   const [inputActive, setInputActive] = useState(false);
+  const [hideContent, setHideContent] = useState(false);
   useEffect(() => {
     props.fetchPopularMovies();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -25,24 +26,28 @@ const Home = (props: Props) => {
     if (searchInput && searchInput.length > 1) {
       debounce(() => {
         props.fetchPopularMovies(searchInput);
+        setHideContent(false);
       }, 500)();
     }
     setSearchInput(input);
   };
 
   const onCancel = () => {
-    props.fetchPopularMovies();
     setSearchInput('');
     setInputActive(false);
+    setHideContent(false);
+    props.fetchPopularMovies(null, 1, true);
   };
 
   const onFocus = () => {
+    setHideContent(true);
     setInputActive(true);
   };
 
-  const fetchMorePages = (pageNumber) => {
-    props.fetchPopularMovies(null, pageNumber + 1);
+  const fetchMorePages = (pageNumber, search) => {
+    props.fetchPopularMovies(search, pageNumber + 1);
   };
+
   const {
     popularMovies,
     isFetching,
@@ -101,14 +106,14 @@ const Home = (props: Props) => {
         inputActivity={inputActive}
       />
 
-      {!isFetching ? (
+      {!hideContent && (
         <FlatList
           ref={list}
           data={popularMovies}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
           onEndReachedThreshold={0}
-          onEndReached={() => fetchMorePages(page)}
+          onEndReached={() => fetchMorePages(page, searchInput)}
           ListHeaderComponent={renderHeader()}
           ListFooterComponent={renderFooter()}
           //TODO: check with Ilijan what is better
@@ -119,8 +124,6 @@ const Home = (props: Props) => {
           horizontal={false}
           numColumns={3}
         />
-      ) : (
-        <Loading />
       )}
     </View>
   );
