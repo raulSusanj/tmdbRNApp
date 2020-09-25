@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import { debounce } from 'lodash';
 import { global, fonts } from '../../style';
-import { SearchBar, Thumbnail, Loading, Error } from '../../components';
+import { SearchBar, Thumbnail, Error } from '../../components';
 import { styles } from './Home.style';
 import { connect } from 'react-redux';
 import { fetchPopularMovies } from '../../redux/actions';
